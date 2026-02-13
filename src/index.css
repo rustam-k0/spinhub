@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Theme Palette */
+    --color-bg: #09090b;
+    /* Zinc 950 */
+    --color-surface: #18181b;
+    /* Zinc 900 */
+    --color-surface-hover: #27272a;
+    /* Zinc 800 */
+    --color-text: #fafafa;
+    /* Zinc 50 */
+    --color-text-secondary: #a1a1aa;
+    /* Zinc 400 */
+    --color-border: #27272a;
+    /* Zinc 800 */
+
+    /* Semantic Colors */
+    --color-available: #10b981;
+    /* Emerald 500 */
+    --color-in-use: #f59e0b;
+    /* Amber 500 */
+    --color-free: #6366f1;
+    /* Indigo 500 */
+    --color-broken: #71717a;
+    /* Zinc 500 */
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
