@@ -48,8 +48,6 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
       tick();
       const interval = setInterval(tick, 1000);
       return () => clearInterval(interval);
-    } else if (machine.status === 'free_time') {
-      setTimeLeft('15 min');
     }
   }, [machine.status, machine.finishTime, onUpdate, machine.id]);
 
@@ -117,7 +115,7 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
         {machine.status === 'free_time' && (
           <>
             <span className="card-timer" style={{ fontSize: '1.25rem' }}>Free Time!</span>
-            <span className="card-label">{timeLeft} left to claim</span>
+            <span className="card-label">15 min left to claim</span>
           </>
         )}
 
