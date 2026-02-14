@@ -29,7 +29,6 @@ function App() {
           <div className="header-legend">
             <span><span className="legend-dot" style={{ background: 'var(--color-available)' }} />Available</span>
             <span><span className="legend-dot" style={{ background: 'var(--color-in-use)' }} />In Use</span>
-            <span><span className="legend-dot" style={{ background: 'var(--color-free)' }} />Free</span>
           </div>
         </div>
       </header>
