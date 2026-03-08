@@ -24,12 +24,16 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [showDurationModal, setShowDurationModal] = useState(false);
   const [durationInput, setDurationInput] = useState(String(DEFAULT_DURATION));
+  const [now, setNow] = useState(() => Date.now());
 
   // Countdown timer
   useEffect(() => {
     if ((machine.status === 'in_use' || machine.status === 'available') && machine.finishTime) {
       const tick = () => {
-        const diff = machine.finishTime! - Date.now();
+        const currentTime = Date.now();
+        setNow(currentTime);
+
+        const diff = machine.finishTime! - currentTime;
         if (diff <= 0) {
           // Time expired
           onUpdate(machine.id, { status: 'available', bonusMinutes: 0, finishTime: undefined });
@@ -40,23 +44,21 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
 
-        // Update bonus minutes for logic, but UI relies on timeLeft/tick
-        // potentially could update machine.bonusMinutes here but that causes re-renders/loop updates
-        // so we just rely on derived state for display
-
         setTimeLeft(
           h > 0
             ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
             : `${m}:${s.toString().padStart(2, '0')}`
         );
       };
+      // Run once immediately to avoid 1s delay
       tick();
       const interval = setInterval(tick, 1000);
       return () => clearInterval(interval);
-    } else {
-      setTimeLeft('');
     }
+    // If not in use or available with a finish time, we don't need a timer
   }, [machine.status, machine.finishTime, onUpdate, machine.id]);
+
+  const displayTimeLeft = ((machine.status === 'in_use' || machine.status === 'available') && machine.finishTime) ? timeLeft : '';
 
   const handleStart = () => {
     setDurationInput(String(DEFAULT_DURATION));
@@ -118,9 +120,9 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
         {statusIcon()}
 
         {machine.status === 'available' && (
-          (machine.finishTime && machine.finishTime > Date.now()) ? (
+          (machine.finishTime && machine.finishTime > now) ? (
             <>
-              <span className="card-timer" style={{ fontSize: '1.25rem', color: 'var(--color-free)' }}>{timeLeft}</span>
+              <span className="card-timer" style={{ fontSize: '1.25rem', color: 'var(--color-free)' }}>{displayTimeLeft}</span>
               <span className="card-label">Bonus Time Available!</span>
             </>
           ) : (
@@ -130,7 +132,7 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
 
         {machine.status === 'in_use' && (
           <>
-            <span className="card-timer">{timeLeft}</span>
+            <span className="card-timer">{displayTimeLeft}</span>
             <span className="card-label">remaining</span>
           </>
         )}
@@ -144,9 +146,9 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
       {/* Actions */}
       <div className="card-actions">
         {machine.status === 'available' && (
-          (machine.finishTime && machine.finishTime > Date.now()) ? (
+          (machine.finishTime && machine.finishTime > now) ? (
             <div className="card-actions-group">
-              <button className="btn btn--primary" onClick={handleUseBonus}>Use Bonus ({timeLeft})</button>
+              <button className="btn btn--primary" onClick={handleUseBonus}>Use Bonus ({displayTimeLeft})</button>
               <button className="btn btn--secondary" onClick={handleStart}>New Wash</button>
             </div>
           ) : (
@@ -197,3 +199,4 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
 };
 
 export default MachineCard;
+
