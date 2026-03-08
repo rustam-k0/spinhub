@@ -64,7 +64,10 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
   };
 
   const confirmStart = () => {
-    const minutes = parseInt(durationInput) || DEFAULT_DURATION;
+    let minutes = parseInt(durationInput);
+    if (isNaN(minutes) || minutes <= 0) minutes = DEFAULT_DURATION;
+    if (minutes > 1440) minutes = 1440; // Max 24 hours
+
     onUpdate(machine.id, {
       status: 'in_use',
       finishTime: Date.now() + minutes * 60000,
@@ -79,7 +82,7 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
     const remaining = Math.max(0, Math.ceil((machine.finishTime! - Date.now()) / 60000));
     onUpdate(machine.id, { status: 'available', bonusMinutes: remaining });
   };
-  const handleReportBroken = () => onUpdate(machine.id, { status: 'out_of_order' });
+  const handleReportBroken = () => onUpdate(machine.id, { status: 'out_of_order', finishTime: undefined, bonusMinutes: 0 });
   const handleFix = () => onUpdate(machine.id, { status: 'available', bonusMinutes: 0, finishTime: undefined });
 
   const handleUseBonus = () => {
@@ -152,10 +155,13 @@ const MachineCard: React.FC<MachineCardProps> = ({ machine, onUpdate }) => {
         )}
 
         {machine.status === 'in_use' && (
-          <>
-            <button className="btn btn--secondary" onClick={handleFinishEarly}>Finish Early</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn--secondary" style={{ flex: 1, paddingLeft: 0, paddingRight: 0 }} onClick={handleFinishEarly}>Finish Early</button>
+              <button className="btn btn--secondary" style={{ flex: 1, paddingLeft: 0, paddingRight: 0 }} onClick={() => onUpdate(machine.id, { status: 'available', finishTime: undefined, bonusMinutes: 0 })}>Cancel Wash</button>
+            </div>
             <button className="btn btn--danger" onClick={handleReportBroken}>Report Broken</button>
-          </>
+          </div>
         )}
 
         {machine.status === 'out_of_order' && (
